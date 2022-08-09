@@ -15,7 +15,12 @@ namespace LifeV0.ConsoleUi
 
                 if (chunk.HasCreature)
                 {
+                    if (chunk.Creature.Gens.Contains(Creatures.Gen.Birth))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    }
                     Console.Write('o');
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
                 else
                 {

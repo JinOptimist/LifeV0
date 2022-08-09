@@ -11,6 +11,8 @@ namespace LifeV0.Worlds
     {
         private CreatureBuilder _creatureBuilder = new CreatureBuilder();
 
+        private Random _random = new Random();
+
         public WorldTimeManager(World world)
         {
             World = world;
@@ -33,6 +35,18 @@ namespace LifeV0.Worlds
 
         private void CreatureTick(Creature creature)
         {
+            if (!creature.Gens.Any())
+            {
+                Kill(creature);
+                return;
+            }
+
+            if (_random.NextDouble() < CreatureSettings.ChanseOfDeath)
+            {
+                Kill(creature);
+                return;
+            }
+
             var activeGen = creature.Gens[creature.ActiveGenIndex];
 
             switch (activeGen)
@@ -46,6 +60,15 @@ namespace LifeV0.Worlds
                     _creatureBuilder.Birth(creature);
                     break;
                 case Gen.MoveNorth:
+                    creature.Energry -= CreatureSettings.MoveEnergyConsumption;
+                    if (creature.WorldChunk.Y == 0)
+                    {
+                        //kill
+                        creature.Energry = -1;
+                        break;
+                    }
+
+                    //creature.WorldChunk.World.CreatureMove();
                     break;
                 case Gen.MoveSouth:
                     break;
@@ -57,13 +80,18 @@ namespace LifeV0.Worlds
                     break;
             }
 
-            creature.Energry -= CreatureSettings.MinEnergyConsumption;
-            if (creature.Energry < 0)
+            creature.Energry -= CreatureSettings.TickEnergyConsumption;
+            if (creature.Energry <= 0)
             {
-                creature.WorldChunk.Creature = null;
+                Kill(creature);
             }
 
             creature.ActiveGenIndex = (creature.ActiveGenIndex + 1) % creature.Gens.Length;
+        }
+
+        private void Kill(Creature creature)
+        {
+            creature.WorldChunk.Creature = null;
         }
     }
 }

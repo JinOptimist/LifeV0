@@ -29,34 +29,49 @@ namespace LifeV0.Creatures
 
             var chunk = creature.WorldChunk;
             var nearEpmtyChunks = chunk.World.GetNearChunks(chunk.X, chunk.Y)
-                .Where(x => !x.HasCreature);
-            
+                .Where(x => !x.HasCreature)
+                .ToList();
+
             if (nearEpmtyChunks.Any())
             {
-                var list = nearEpmtyChunks.ToList();
-                var randmonIndex = _random.Next(list.Count);
-                var newCreatureHomeChunk = list[randmonIndex];
+                var randmonIndex = _random.Next(nearEpmtyChunks.Count);
+                var newCreatureHomeChunk = nearEpmtyChunks[randmonIndex];
                 var child = new Creature(creature.Energry, CopyGens(creature.Gens), newCreatureHomeChunk);
-                
+
                 newCreatureHomeChunk.Creature = child;
             }
             else
             {
-                //Die
-                creature.WorldChunk.Creature = null;
+                //Kill
+                creature.Energry = -1;
             }
         }
 
         private Gen[] CopyGens(Gen[] gens)
         {
-            var newGens = new Gen[gens.Length];
-            for (int i = 0; i < gens.Length; i++)
+            var newGenLength = gens.Length;
+            if (_random.NextDouble() < CreatureSettings.ChanseOfMutation)
+            {
+                newGenLength++;
+            }
+            if (_random.NextDouble() < CreatureSettings.ChanseOfMutation)
+            {
+                newGenLength--;
+            }
+
+            var newGens = new Gen[newGenLength];
+            for (int i = 0; i < Math.Min(gens.Length, newGenLength); i++)
             {
                 newGens[i] = _random.NextDouble() < CreatureSettings.ChanseOfMutation
                     ? RandomGen()
                     : gens[i];
             }
-            
+
+            if (newGenLength > gens.Length)
+            {
+                newGens[newGenLength - 1] = RandomGen();
+            }
+
             return newGens;
         }
 
@@ -64,12 +79,10 @@ namespace LifeV0.Creatures
         {
             var gensCount = _random.Next(CreatureSettings.InitialGensCountMin, CreatureSettings.InitialGensCountMax);
             var gens = new Gen[gensCount];
-            for (int i = 0; i < gensCount - 1; i++)
+            for (int i = 0; i < gensCount; i++)
             {
-                gens[i] = Gen.Fotosintez;
+                gens[i] = RandomGen();
             }
-
-            gens[gensCount - 1] = Gen.Birth;
 
             return gens;
         }

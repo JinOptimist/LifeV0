@@ -4,13 +4,16 @@
     {
         public const int InitialEnergy = 10;
 
-        public const int InitialGensCountMin = 5;
-        public const int InitialGensCountMax = 10;
+        public const int InitialGensCountMin = 2;
+        public const int InitialGensCountMax = 4;
 
-        public const int MinEnergyConsumption = 1;
+        public const int TickEnergyConsumption = 1;
+        public const int MoveEnergyConsumption = 2;
 
-        public const float GenCopyEnergyConsumption = 0.2f;
+        public const float GenCopyEnergyConsumption = 0.3f;
 
         public const float ChanseOfMutation = 0.01f;
+
+        public const float ChanseOfDeath = 0.001f;
     }
 }
